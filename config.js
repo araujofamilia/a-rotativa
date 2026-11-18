@@ -27,7 +27,7 @@ var CONFIG = {
   cadernosParaParecer: 6,
   /* Frase que explica a correção ao aluno (capa e "Minhas respostas"). */
   correcao: "O professor lê e devolve um comentário. Na correção, usa IA em parte e supervisiona cada devolutiva.",
-  appsScript: "",
+  appsScript: "https://script.google.com/macros/s/AKfycbwd5FuJiDixMkNCC-_jqRlwoIrMaoI4DRPsxuyOz5f43s5BKP4lLHGY3YmNqXR2KxyM/exec",
   envio: {
     acao: "",
     campos: { email: "", nome: "", tipo: "", caderno: "", pergunta: "", resposta: "", dados: "" }
