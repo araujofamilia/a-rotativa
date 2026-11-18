@@ -20,9 +20,9 @@
 var CONFIG = {
   emailProfessor: "artur.araujo@puc-campinas.edu.br",
   dataProva: "30/11",
-  fimEnvio: "2026-11-29T00:00:00-03:00",
-  fimTexto: "sábado, 28/11, à meia-noite",
-  fimCurto: "sábado, 28/11, meia-noite",
+  fimEnvio: "2026-11-28T23:59:59-03:00",
+  fimTexto: "sábado, 28/11, às 23h59",
+  fimCurto: "sábado, 28/11, 23h59",
   fecharTudoNoPrazo: false,
   cadernosParaParecer: 6,
   /* Frase que explica a correção ao aluno (capa e "Minhas respostas"). */
