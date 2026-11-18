@@ -252,7 +252,7 @@
     }
     html += '<div class="manchete" style="font-size:clamp(28px,4vw,40px)">A redação</div><div class="progresso"><i style="width:' + (c / TOTAL * 100) + '%"></i></div>' +
       '<p class="mini">Escolha um caderno. Cada um é uma aula. O caderno roda quando você acerta pelo menos metade das questões de escolha e entrega a resposta escrita. ' +
-      (nt ? 'Sua nota de treino: <b>' + fmtNota(nt.media) + '</b> (média das melhores rodadas em ' + nt.n + ' caderno' + (nt.n > 1 ? 's' : '') + '; não vale nota no semestre).' : '') + '</p><div class="grade">';
+      (nt ? 'Sua nota de treino: <b>' + fmtNota(nt.media) + '</b> (média das melhores rodadas em ' + nt.n + ' caderno' + (nt.n > 1 ? 's' : '') + '; só das questões de escolha, a ser complementada com a análise das respostas escritas; não vale nota no semestre).' : '') + '</p><div class="grade">';
     CADERNOS.forEach(function (t) {
       var s = S.cad[t.id];
       var st = !s || !s.rodadas ? "Nova pauta" : "Melhor nota: " + fmtNota(s.melhor) + " · " + s.rodadas + " rodada(s)";
@@ -465,7 +465,7 @@
     var certos = r.res.filter(function (x) { return x === true; }).length;
     var nota = escolhas ? certos / escolhas * 10 : 0;
     var html = '<div class="placar">';
-    var notaHtml = '<div class="mini" style="margin-top:6px">Nota de treino desta rodada: <b style="font-size:20px;color:var(--tinta)">' + fmtNota(nota) + '</b><br>É só para você saber como foi: não vale nada no semestre.</div>';
+    var notaHtml = '<div class="mini" style="margin-top:6px">Nota de treino desta rodada: <b style="font-size:20px;color:var(--tinta)">' + fmtNota(nota) + '</b><br>A nota considera só as questões de escolha e será complementada com a análise da sua resposta escrita, que o professor lê e comenta. É só para você saber como foi: não vale nada no semestre.</div>';
     if (r.modo === "caderno") {
       var t = porId[r.cad], s = cadEstado(r.cad);
       var entregou = r.res[r.res.length - 1] === null;
