@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var VERSAO = "2026-11-17a";
+  var VERSAO = "2026-11-19a";
   var PREF = "rotativa-impresso:v1:";
   var ULTIMO = "rotativa-impresso:ultimo";
   var MIN_DISS = 40, MIN_PARECER = 150;
@@ -404,12 +404,36 @@
         if (certo) { S.acertos++; S.seq++; S.melhorSeq = Math.max(S.melhorSeq, S.seq); pts = it.pts || 10; if (S.seq >= 3) pts += 5; }
         else { S.erros++; S.seq = 0; }
         ganha(pts, b);
+        r.marc = r.marc || []; r.marc[r.i] = +b.dataset.o;
         r.res.push(certo); r.i++; salvar(); desenhaBarra();
         document.getElementById("fb").innerHTML = '<div class="feedback ' + (certo ? 'ok' : 'no') + '"><b class="v">' + (certo ? (S.seq >= 3 ? 'Certo! Sequência de ' + S.seq + '.' : 'Certo!') : 'Não foi dessa vez.') + '</b>' + esc(it.exp) + '</div>' +
           '<div class="acoes"><button class="btn" id="prox">' + (r.i >= r.itens.length ? 'Ver resultado' : 'Próxima') + '</button></div>';
         var p = document.getElementById("prox"); p.focus(); p.onclick = mostraItem;
       };
     });
+  }
+
+  /* Resumo da rodada que segue junto com a resposta escrita (desde a
+     versão 2026-11-19a): cada questão de escolha com a alternativa
+     marcada, a certa e o acerto, mais a nota da rodada, para a devolutiva
+     dizer exatamente onde o aluno errou. A resposta escrita é sempre o
+     último item da rodada; na entrega, as questões de escolha já foram
+     respondidas. Rodada começada antes desta versão não tem a marcada. */
+  function corta(s, n) { s = String(s == null ? "" : s).replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+  function resumoRodada(r) {
+    var escolhas = 0, certos = 0, itens = [];
+    r.itens.forEach(function (it, i) {
+      if (it.tipo !== "esc") return;
+      escolhas++;
+      if (i >= r.res.length) return;
+      var ok = r.res[i] === true, m = r.marc && typeof r.marc[i] === "number" ? r.marc[i] : null;
+      if (ok) certos++;
+      var x = { n: i + 1, tipo: it.rotulo, q: corta(it.q, 260), marcada: m === null ? null : corta(it.ops[m], 200), certa: corta(it.ops[it.c], 200), ok: ok };
+      if (it.recorte) x.caso = corta((it.recorte.fonte ? it.recorte.fonte + ": " : "") + it.recorte.txt, 200);
+      itens.push(x);
+    });
+    var nota = escolhas ? certos / escolhas * 10 : 0;
+    return { caderno: r.cad, acertos: certos, questoes: escolhas, nota: fmtNota(nota), rodou: nota >= 5, itens: itens };
   }
 
   function rascunhoKey() { var r = S.rodada; return "rasc:" + r.inicio + ":" + r.i; }
@@ -429,6 +453,7 @@
     bt.onclick = function () {
       var dq = DISS[it.cad][it.d];
       var reg = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), tipo: "dissertativa", cad: it.cad, pergunta: dq.q, texto: ta.value.trim(), data: agora() };
+      if (S.rodada && S.rodada.modo === "caderno") reg.rodada = resumoRodada(S.rodada);
       S.respostas.push(reg); delete S.rascunhos[rascunhoKey()];
       ganha(30, bt);
       enfileira(reg);
@@ -574,8 +599,9 @@
     if (!prazoAberto()) { reg.fora = true; salvar(); return; }
     var nt = notaTreino();
     S.fila = S.fila || [];
-    S.fila.push({ id: reg.id, tipo: reg.tipo, cad: reg.cad, pergunta: reg.pergunta, texto: reg.texto, data: reg.data, ok: false, tent: 0,
-      dados: { v: VERSAO, xp: S.xp, cadernos: rodados(), notaTreino: nt ? fmtNota(nt.media) : "", acertos: S.acertos, erros: S.erros } });
+    var dados = { v: VERSAO, xp: S.xp, cadernos: rodados(), notaTreino: nt ? fmtNota(nt.media) : "", acertos: S.acertos, erros: S.erros };
+    if (reg.rodada) dados.rodada = reg.rodada;
+    S.fila.push({ id: reg.id, tipo: reg.tipo, cad: reg.cad, pergunta: reg.pergunta, texto: reg.texto, data: reg.data, ok: false, tent: 0, dados: dados });
     salvar(); processaFila();
   }
   var enviando = false;
@@ -604,7 +630,12 @@
       "Cadernos rodados: " + rodados() + "/" + TOTAL + " · XP: " + S.xp + " · acertos: " + S.acertos + " · erros: " + S.erros, ""];
     S.respostas.forEach(function (r, i) {
       l.push("==== " + (i + 1) + ". " + (r.tipo === "parecer" ? "PARECER" : "RESPOSTA ESCRITA") + " · " + nomeCad(r.cad) + " · " + dataBR(r.data));
-      l.push("Pergunta: " + r.pergunta); l.push(""); l.push(r.texto); l.push(""); if (r.auto) l.push("(Autoavaliação: " + r.auto + " itens marcados)"); l.push("");
+      l.push("Pergunta: " + r.pergunta); l.push(""); l.push(r.texto); l.push(""); if (r.auto) l.push("(Autoavaliação: " + r.auto + " itens marcados)");
+      if (r.rodada) {
+        l.push("(Rodada: " + r.rodada.acertos + " de " + r.rodada.questoes + " questões de escolha certas, nota de treino " + r.rodada.nota + ")");
+        r.rodada.itens.forEach(function (x) { if (!x.ok) l.push("  Errada: " + x.q + " | marcada: " + (x.marcada || "não registrada") + " | certa: " + x.certa); });
+      }
+      l.push("");
     });
     return l.join("\n");
   }
