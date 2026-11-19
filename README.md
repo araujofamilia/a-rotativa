@@ -37,6 +37,8 @@ Definidos no `config.js`:
 
 Cada resposta escrita e cada parecer entram numa fila salva no navegador e seguem sozinhos para o Formulário Google, com nova tentativa ao abrir a página, ao voltar a conexão e a cada minuto. O formulário grava numa planilha da conta araujofamilia@gmail.com, e um resumo diário, entre 3h e 4h, chega a artur.araujo@puc-campinas.edu.br e artur.araujo@campinas.sp.gov.br, agrupado por aluno. Dia sem envio novo não gera e-mail.
 
+Desde a versão 2026-11-19a, a coluna "Dados do jogo" da planilha traz, junto com cada resposta escrita de caderno, o campo `rodada`: a nota de treino da rodada (`nota`, só das questões de escolha), os acertos sobre o total (`acertos`, `questoes`), se o caderno rodou (`rodou`) e, em `itens`, cada questão de escolha com a alternativa marcada (`marcada`), a certa (`certa`), o acerto (`ok`) e, nos casos, o trecho do caso (`caso`). É dali que sai a lista de questões erradas de cada aluno para a devolutiva. Respostas de versões anteriores trazem só os totais de acertos e erros; rodada começada antes da atualização vem sem a alternativa marcada nas questões já respondidas.
+
 A tela "Minhas respostas" também deixa baixar, copiar ou mandar por e-mail, como cópia de segurança.
 
 ## Notícias novas (atualização sem mexer no código)
